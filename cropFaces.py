@@ -5,6 +5,10 @@ Created on Tue Aug  9 10:28:49 2022
 
 @author: michellegreene
 """
+
+# Import libraries
+import cv2 
+
 # this is a test
 # Get input from user about which folder to start
 ## define where raw frames are
@@ -15,6 +19,7 @@ Created on Tue Aug  9 10:28:49 2022
 # Loop through each image
 
 # Open the image
+img = cv2.imread('some/path/to/fix') #REPLACE ME
 
 # Detect the face
 
