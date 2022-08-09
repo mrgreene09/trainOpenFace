@@ -5,7 +5,7 @@ Created on Tue Aug  9 10:28:49 2022
 
 @author: michellegreene
 """
-
+# this is a test
 # Get input from user about which folder to start
 ## define where raw frames are
 ## define where crops are
