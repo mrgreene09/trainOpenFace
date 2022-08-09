@@ -27,10 +27,12 @@ Created on Tue Aug  9 10:28:49 2022
             # Saved the cropped image
         # If no:
             # Show full image
-            # Person provides bounding box
-            # Save cropped image
+            # Person provides bounding box or clicks anywhere one time
+            # If bbox > 1 pixel:
+                # Save cropped image
             
 # else:
     # Show full image
-    # Person provides bounding box
-    # Save cropped image
+    # Person provides bounding box or clicks anywhere one time
+    # If bbox > 1 pixel:
+        # Save cropped image
