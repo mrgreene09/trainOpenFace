@@ -10,6 +10,7 @@ Created on Tue Aug  9 10:28:49 2022
 import cv2 
 import glob
 from mtcnn.mtcnn import MTCNN
+import numpy as np
 
 # Helper functions
 def face_detect(img):
@@ -38,9 +39,11 @@ for i in dirList:
             # Open the image
             img = cv2.imread(k)
             # Detect the face
-            face_detect(img)            
-
-# Crop the face
+            faces = face_detect(img)  
+            x, y, width, height = (faces[0]['box'])
+            # Crop the face
+            crop = img[y:y+height, x:x+width]
+            
 
 # if face detected:
     # Show the cropped face
