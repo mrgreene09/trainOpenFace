@@ -15,11 +15,10 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 import os
 
-## Global constants
-## img = None
+# Global constants
+## image = None
 ## tl_list = []
 ## br_list = []
-## object_list = []
 
 # Helper functions
 def face_detect(img):
@@ -29,12 +28,10 @@ def face_detect(img):
     return  faces  
 
 ## def line_select_callback(clk, rls):
-    ## gglobal tl_list
+    ## global tl_list
     ## global br_list
-    ## global object_list
     ## tl_list.append((int(clk.xdata), int(clk.ydata)))
     ## br_list.append((int(rls.xdata), int(rls.ydata)))
-    ## object_list.append(obj)
     
 ## def toggle_selector(event):
     ## toggle_selector.RS.set_active(True)
@@ -98,6 +95,7 @@ for i in dirList:
                     
                 else:
                     # Show full image
+                    ## img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     ## ax.imshow(img)
                     
                     # Create bounding box
@@ -108,15 +106,16 @@ for i in dirList:
                         ## spancoords='pixels', interactive=True
                     ## )
                     ## bbox = plt.connect('key_press_event', toggle_selector)
+                    
                     ## plt.show()
                     
                     # if bbox > 1 pixel:
                         # Crop bounding box image
+                        ## crop = img[tl_list, br_list]
                         # Save cropped image
-                        
-                    # else:
-                        # next image
-
+                        ## saveName = 'face' + str(frameCount)
+                        ## cv2.imwrite(os.path.join(path, saveName)+ '.jpg', img)
+                       
                 cv2.destroyAllWindows()
 
 # if face detected:
