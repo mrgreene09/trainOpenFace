@@ -31,19 +31,57 @@ dirList = sorted(glob.glob(rawFrames+ '*'))
 # Loop through each folder beginning with start folder
 for i in dirList:
     ethList = sorted(glob.glob(i + "/" + "*"))
-# Loop through all video folders
+    
+    # Loop through all ethnic group folders
     for j in ethList:
-        imageList = sorted(glob.glob(j + "/" + "*.jpg"))
-# Loop through each image
-        for k in imageList:
-            # Open the image
-            img = cv2.imread(k)
-            # Detect the face
-            faces = face_detect(img)  
-            x, y, width, height = (faces[0]['box'])
-            # Crop the face
-            crop = img[y:y+height, x:x+width]
+        videoList = sorted(glob.glob(j + "/" + "*"))
+        
+        # Loop through all video folders
+        for k in videoList:
+            imageList = sorted(glob.glob(k + "/" + "*.jpg"))
+
+            # Loop through each image
+            frameCount = 0
+            for l in imageList:
+                frameCount += 1
+                
+                # extract ethnic group name
+                ethnicGroup = i.split('/')[-1] 
+                
+                # extract face frame name
+                prelimName = imageList[l].split('/')[-1]
+                
+                # create image directory
+                path = os.path.join(cropFrames, ethnicGroup, prelimName)
+                os.makedirs(path)
+                
+                # Open the image
+                img = cv2.imread(l)
+                
+                # Detect the face
+                faces = face_detect(img)  
+                x, y, width, height = (faces[0]['box'])
+                
+                # Crop the face
+                crop = img[y:y+height, x:x+width]
+                
+                # Show cropped image
+                cv2.imshow("cropped", crop)
+                cv2.waitKey(0) # waiting for any button to be pressed
             
+                # Do we accept the face? y/n
+                accept = input('Do you accept this face? ')
+                
+                if accept == 'y':
+                    # Save the frame
+                    saveName = 'face'+str(frameCount)
+                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', image)
+                    
+                else:
+                    # Show full image
+                    # Create bounding box
+                    
+                cv2.destroyAllWindows()
 
 # if face detected:
     # Show the cropped face
