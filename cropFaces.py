@@ -11,6 +11,15 @@ import cv2
 import glob
 from mtcnn.mtcnn import MTCNN
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import RectangleSelector
+import os
+
+## Global constants
+## img = None
+## tl_list = []
+## br_list = []
+## object_list = []
 
 # Helper functions
 def face_detect(img):
@@ -19,7 +28,17 @@ def face_detect(img):
     faces = detector.detect_faces(img)
     return  faces  
 
-# this is a test
+## def line_select_callback(clk, rls):
+    ## gglobal tl_list
+    ## global br_list
+    ## global object_list
+    ## tl_list.append((int(clk.xdata), int(clk.ydata)))
+    ## br_list.append((int(rls.xdata), int(rls.ydata)))
+    ## object_list.append(obj)
+    
+## def toggle_selector(event):
+    ## toggle_selector.RS.set_active(True)
+
 # Get input from user about which folder to start
 ## define where raw frames are
 rawFrames = "/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/rawFrames/"
@@ -70,17 +89,34 @@ for i in dirList:
                 cv2.waitKey(0) # waiting for any button to be pressed
             
                 # Do we accept the face? y/n
-                accept = input('Do you accept this face? ')
+                accept = input('Do you accept this face? [y/n]: ')
                 
                 if accept == 'y':
                     # Save the frame
                     saveName = 'face'+str(frameCount)
-                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', image)
+                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', img)
                     
                 else:
                     # Show full image
-                    # Create bounding box
+                    ## ax.imshow(img)
                     
+                    # Create bounding box
+                    ## toggle_selector.RS = RectangleSelector(
+                        ## ax, line_select_callback,
+                        ## drawtype='box', useblit=True,
+                        ## button=[1], minspanx=5, minspany=5,
+                        ## spancoords='pixels', interactive=True
+                    ## )
+                    ## bbox = plt.connect('key_press_event', toggle_selector)
+                    ## plt.show()
+                    
+                    # if bbox > 1 pixel:
+                        # Crop bounding box image
+                        # Save cropped image
+                        
+                    # else:
+                        # next image
+
                 cv2.destroyAllWindows()
 
 # if face detected:
