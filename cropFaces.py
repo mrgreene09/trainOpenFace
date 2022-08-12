@@ -37,6 +37,21 @@ def line_select_callback(clk, rls):
 ## Bounding box    
 def toggle_selector(event):
     toggle_selector.RS.set_active(True)
+    
+## Release bbox
+def onkeypress(event):
+    global tl_list
+    global br_list
+    if event.key == 'q':
+        tl_list = np.array(tl_list[0])
+        br_list = np.array(br_list[0])
+        x, y, x2, y2 = tl_list[0], tl_list[1], br_list[0], br_list[1]
+        crop = img[x:x2, y:y2]
+        crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+        # Save cropped image
+        saveName = 'face'+str(frameCount)
+        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+        plt.close()
 
 # Get input from user about which folder to start
 ## define where raw frames are
@@ -96,47 +111,32 @@ for i in dirList:
                     cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
                     
                 else:
-                    # Show full image
                     fig, ax = plt.subplots(1)
                     mngr = plt.get_current_fig_manager()
-                    # mngr.window.setGeometry(250, 120, 1280, 1024)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     ax.imshow(img)
-                    
-                    # Create bounding box
-                    toggle_selector.RS = RectangleSelector(
-                        ax, line_select_callback,
-                        #drawtype='box', 
-                        useblit=True,
-                        button=[1], minspanx=5, minspany=5,
-                        spancoords='pixels', interactive=True
-                    )
-                    bbox = plt.connect('key_press_event', toggle_selector)
-                    
+
                     plt.show()
-                    
-                    if bbox > [1, 1]:
-                        # Crop bounding box image
-                        crop = img[tl_list, br_list]
-                        # Save cropped image
-                        saveName = 'face' + str(frameCount)
-                        cv2.imwrite(os.path.join(path, saveName)+ '.jpg', crop)
+
+                    facePresent = input('Is there a face? [y/n]: ')
+
+                    if facePresent == 'y':
+                        # cv2.destroyAllWindows
+                        # Create bounding box
+                        fig, ax = plt.subplots(1)
+                        mngr = plt.get_current_fig_manager()
+                        ax.imshow(img)
+                        
+                        toggle_selector.RS = RectangleSelector(
+                            ax, line_select_callback,
+                            #drawtype='box', 
+                            useblit=True,
+                            button=[1], minspanx=5, minspany=5,
+                            spancoords='pixels', interactive=True
+                            )
+                        bbox = plt.connect('key_press_event', toggle_selector)
+                        key = plt.connect('key_press_event', onkeypress)
+                        
+                        plt.show()
                        
                 cv2.destroyAllWindows()
-
-# if face detected:
-    # Show the cropped face
-        # Person says y or n
-        # If yes:
-            # Saved the cropped image
-        # If no:
-            # Show full image
-            # Person provides bounding box or clicks anywhere one time
-            # If bbox > 1 pixel:
-                # Save cropped image
-            
-# else:
-    # Show full image
-    # Person provides bounding box or clicks anywhere one time
-    # If bbox > 1 pixel:
-        # Save cropped image
