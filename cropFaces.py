@@ -16,25 +16,27 @@ from matplotlib.widgets import RectangleSelector
 import os
 
 # Global constants
-## image = None
-## tl_list = []
-## br_list = []
+tl_list = []
+br_list = []
 
 # Helper functions
+## Face detection
 def face_detect(img):
     detector = MTCNN()
     # detect faces in the image
     faces = detector.detect_faces(img)
     return  faces  
 
-## def line_select_callback(clk, rls):
-    ## global tl_list
-    ## global br_list
-    ## tl_list.append((int(clk.xdata), int(clk.ydata)))
-    ## br_list.append((int(rls.xdata), int(rls.ydata)))
-    
-## def toggle_selector(event):
-    ## toggle_selector.RS.set_active(True)
+## Bounding box
+def line_select_callback(clk, rls):
+    global tl_list
+    global br_list
+    tl_list.append((int(clk.xdata), int(clk.ydata)))
+    br_list.append((int(rls.xdata), int(rls.ydata)))
+
+## Bounding box    
+def toggle_selector(event):
+    toggle_selector.RS.set_active(True)
 
 # Get input from user about which folder to start
 ## define where raw frames are
@@ -91,30 +93,34 @@ for i in dirList:
                 if accept == 'y':
                     # Save the frame
                     saveName = 'face'+str(frameCount)
-                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', img)
+                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
                     
                 else:
                     # Show full image
-                    ## img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                    ## ax.imshow(img)
+                    fig, ax = plt.subplots(1)
+                    mngr = plt.get_current_fig_manager()
+                    # mngr.window.setGeometry(250, 120, 1280, 1024)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    ax.imshow(img)
                     
                     # Create bounding box
-                    ## toggle_selector.RS = RectangleSelector(
-                        ## ax, line_select_callback,
-                        ## drawtype='box', useblit=True,
-                        ## button=[1], minspanx=5, minspany=5,
-                        ## spancoords='pixels', interactive=True
-                    ## )
-                    ## bbox = plt.connect('key_press_event', toggle_selector)
+                    toggle_selector.RS = RectangleSelector(
+                        ax, line_select_callback,
+                        #drawtype='box', 
+                        useblit=True,
+                        button=[1], minspanx=5, minspany=5,
+                        spancoords='pixels', interactive=True
+                    )
+                    bbox = plt.connect('key_press_event', toggle_selector)
                     
-                    ## plt.show()
+                    plt.show()
                     
-                    # if bbox > 1 pixel:
+                    if bbox > [1, 1]:
                         # Crop bounding box image
-                        ## crop = img[tl_list, br_list]
+                        crop = img[tl_list, br_list]
                         # Save cropped image
-                        ## saveName = 'face' + str(frameCount)
-                        ## cv2.imwrite(os.path.join(path, saveName)+ '.jpg', img)
+                        saveName = 'face' + str(frameCount)
+                        cv2.imwrite(os.path.join(path, saveName)+ '.jpg', crop)
                        
                 cv2.destroyAllWindows()
 
