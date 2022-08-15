@@ -89,6 +89,7 @@ for i in dirList:
                 os.makedirs(path)
                 
                 # Open the image
+                print('Starting {}'.format(prelimName) + 'in {}'.format(k))
                 img = cv2.imread(l)
                 
                 # Detect the face
