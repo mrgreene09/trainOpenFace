@@ -67,11 +67,14 @@ for i in dirList:
     
     # Loop through all ethnic group folders
     for j in ethList:
-        videoList = sorted(glob.glob(j + "/" + "*"))
+        #folderList = sorted(glob.glob(j + "/" + "*"))
+        folderList = os.listdir(i)
         
         # Loop through all video folders
-        for k in videoList:
-            imageList = sorted(glob.glob(k + "/" + "*.jpg"))
+        for k in folderList:
+            thisPath = os.path.join(i, k)
+            #imageList = sorted(glob.glob(k + "/" + "*.jpg"))
+            imageList = sorted(glob.glob(thisPath + '/*.jpg'))
 
             # Loop through each image
             frameCount = 0
@@ -82,14 +85,18 @@ for i in dirList:
                 ethnicGroup = i.split('/')[-1] 
                 
                 # extract face frame name
-                prelimName = imageList[l].split('/')[-1]
+                prelimName = l.split('/')[-1]
+                prelimName = prelimName[:-4]
                 
                 # create image directory
-                path = os.path.join(cropFrames, ethnicGroup, prelimName)
-                os.makedirs(path)
+                try:
+                    path = os.path.join(cropFrames, ethnicGroup, k)
+                    os.makedirs(path)
+                except:
+                    continue
                 
                 # Open the image
-                print('Starting {}'.format(prelimName) + 'in {}'.format(k))
+                print('Starting {}'.format(prelimName) + ' in {}'.format(k))
                 img = cv2.imread(l)
                 
                 # Detect the face
@@ -102,10 +109,12 @@ for i in dirList:
                 # Show cropped image
                 cv2.imshow("cropped", crop)
                 cv2.waitKey(0) # waiting for any button to be pressed
-            
+                
                 # Do we accept the face? y/n
                 accept = input('Do you accept this face? [y/n]: ')
                 
+                cv2.destroyAllWindows()
+
                 if accept == 'y':
                     # Save the frame
                     saveName = 'face'+str(frameCount)
