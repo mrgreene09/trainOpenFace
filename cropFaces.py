@@ -104,50 +104,56 @@ for i in dirList:
                 img = cv2.imread(k)
                 
                 # Detect the face
-                faces = face_detect(img)  
+                faces = face_detect(img) 
                 
+                ## Temporary
                 if len(faces) > 0:
-                    x, y, width, height = (faces[0]['box'])
+                    continue
+                else:
+                    continue
+                
+                #if len(faces) > 0:
+                    #x, y, width, height = (faces[0]['box'])
                     
                     # Crop the face
-                    crop = img[y:y+height, x:x+width]
+                    #crop = img[y:y+height, x:x+width]
                     
                     # Show cropped image
-                    cv2.imshow('cropped', crop)
-                    cv2.waitKey(250)
-                    cv2.destroyAllWindows()
+                    #cv2.imshow('cropped', crop)
+                    #cv2.waitKey(250)
+                    #cv2.destroyAllWindows()
                     
                     # Save image
-                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                    #cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
                         
-                else:
-                    if os.path.isfile(newCrop) == True:
-                        continue
-                    else:
-                        fig, ax = plt.subplots(1)
-                        mngr = plt.get_current_fig_manager()
-                        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                        ax.imshow(img)
+                #else:
+                    #if os.path.isfile(newCrop) == True:
+                        #continue
+                    #else:
+                        #fig, ax = plt.subplots(1)
+                        #mngr = plt.get_current_fig_manager()
+                        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                        #ax.imshow(img)
                         
-                        plt.show()
+                        #plt.show()
                         
-                        facePresent = input('Is there a face? [y/n]: ')
+                        #facePresent = input('Is there a face? [y/n]: ')
                         
-                        if facePresent == 'y':
+                        #if facePresent == 'y':
                             # Create bounding box
-                            fig, ax = plt.subplots(1)
-                            mngr = plt.get_current_fig_manager()
-                            ax.imshow(img)
+                            #fig, ax = plt.subplots(1)
+                            #mngr = plt.get_current_fig_manager()
+                            #ax.imshow(img)
                             
-                            toggle_selector.RS = RectangleSelector(
-                                ax, line_select_callback, 
-                                useblit=True,
-                                button=[1], minspanx=5, minspany=5,
-                                spancoords='pixels', interactive=True
-                                )
-                            bbox = plt.connect('key_press_event', toggle_selector)
-                            key = plt.connect('key_press_event', onkeypress)
+                            #toggle_selector.RS = RectangleSelector(
+                                #ax, line_select_callback, 
+                                #useblit=True,
+                                #button=[1], minspanx=5, minspany=5,
+                                #spancoords='pixels', interactive=True
+                                #)
+                            #bbox = plt.connect('key_press_event', toggle_selector)
+                            #key = plt.connect('key_press_event', onkeypress)
                             
-                            plt.show()
+                            #plt.show()
                    
             cv2.destroyAllWindows()
