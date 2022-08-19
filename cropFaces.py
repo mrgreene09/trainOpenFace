@@ -106,26 +106,24 @@ for i in dirList:
                 # Detect the face
                 faces = face_detect(img) 
                 
-                ## Temporary
                 if len(faces) > 0:
-                    continue
-                else:
-                    continue
-                
-                #if len(faces) > 0:
-                    #x, y, width, height = (faces[0]['box'])
+                    x, y, width, height = (faces[0]['box'])
                     
                     # Crop the face
-                    #crop = img[y:y+height, x:x+width]
+                    crop = img[y:y+height, x:x+width]
                     
                     # Show cropped image
-                    #cv2.imshow('cropped', crop)
-                    #cv2.waitKey(250)
-                    #cv2.destroyAllWindows()
+                    cv2.imshow('cropped', crop)
+                    cv2.waitKey(250)
+                    cv2.destroyAllWindows()
                     
                     # Save image
-                    #cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
-                        
+                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                    
+                # Temporary
+                else:
+                    continue
+                    
                 #else:
                     #if os.path.isfile(newCrop) == True:
                         #continue
