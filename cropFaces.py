@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 import os
+import os.path
 
 # Global constants
 tl_list = []
@@ -46,7 +47,7 @@ def onkeypress(event):
         tl_list = np.array(tl_list[0])
         br_list = np.array(br_list[0])
         x, y, x2, y2 = tl_list[0], tl_list[1], br_list[0], br_list[1]
-        crop = img[x:x2, y:y2]
+        crop = img[y:y2, x:x2]
         crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
         # Save cropped image
         saveName = 'face'+str(frameCount)
@@ -55,89 +56,98 @@ def onkeypress(event):
 
 # Get input from user about which folder to start
 ## define where raw frames are
-rawFrames = "/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/rawFrames/"
+rawFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/rawFrames/'
 ## define where crops are
-cropFrames = "/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropFrames/"
+cropFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropFrames/'
 
 dirList = sorted(glob.glob(rawFrames+ '*'))
 
-# Loop through each folder beginning with start folder
+# Loop through each ethnic group folder
 for i in dirList:
-    ethList = sorted(glob.glob(i + "/" + "*"))
+    vidList = sorted(glob.glob(i + '/' + '*'))
     
-    # Loop through all ethnic group folders
-    for j in ethList:
-        videoList = sorted(glob.glob(j + "/" + "*"))
+    # Loop through each person folder
+    for j in vidList:
+        imgList = sorted(glob.glob(j + '/' + '*.jpg'))
         
-        # Loop through all video folders
-        for k in videoList:
-            imageList = sorted(glob.glob(k + "/" + "*.jpg"))
-
-            # Loop through each image
-            frameCount = 0
-            for l in imageList:
-                frameCount += 1
+        # Set frame count
+        frameCount = 0
+        
+        # Loop through each image
+        for k in imgList:
+            frameCount += 1
                 
-                # extract ethnic group name
-                ethnicGroup = i.split('/')[-1] 
-                
-                # extract face frame name
-                prelimName = imageList[l].split('/')[-1]
-                
-                # create image directory
-                path = os.path.join(cropFrames, ethnicGroup, prelimName)
-                os.makedirs(path)
-                
+            # Reset values
+            tr_list = []
+            br_list = []
+            
+            # extract ethnic group name
+            ethnicGroup = i.split('/')[-1] 
+            
+            # extract face frame name
+            prelimName = k.split('/')[-1]
+            
+            # create image directory
+            path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
+            os.makedirs(path, exist_ok=True)
+            
+            # Set file name and save path
+            saveName = 'face'+str(frameCount)
+            newCrop = os.path.join(path, saveName + '.jpg')
+            
+            # Does the image file exist already?
+            if os.path.isfile(newCrop) == True:
+                continue
+            else:
                 # Open the image
-                print('Starting {}'.format(prelimName) + 'in {}'.format(k))
-                img = cv2.imread(l)
+                print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
+                img = cv2.imread(k)
                 
                 # Detect the face
                 faces = face_detect(img)  
-                x, y, width, height = (faces[0]['box'])
                 
-                # Crop the face
-                crop = img[y:y+height, x:x+width]
-                
-                # Show cropped image
-                cv2.imshow("cropped", crop)
-                cv2.waitKey(0) # waiting for any button to be pressed
-            
-                # Do we accept the face? y/n
-                accept = input('Do you accept this face? [y/n]: ')
-                
-                if accept == 'y':
-                    # Save the frame
-                    saveName = 'face'+str(frameCount)
-                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                if len(faces) > 0:
+                    x, y, width, height = (faces[0]['box'])
                     
+                    # Crop the face
+                    crop = img[y:y+height, x:x+width]
+                    
+                    # Show cropped image
+                    cv2.imshow('cropped', crop)
+                    cv2.waitKey(250)
+                    cv2.destroyAllWindows()
+                    
+                    # Save image
+                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                        
                 else:
-                    fig, ax = plt.subplots(1)
-                    mngr = plt.get_current_fig_manager()
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                    ax.imshow(img)
-
-                    plt.show()
-
-                    facePresent = input('Is there a face? [y/n]: ')
-
-                    if facePresent == 'y':
-                        # cv2.destroyAllWindows
-                        # Create bounding box
+                    if os.path.isfile(newCrop) == True:
+                        continue
+                    else:
                         fig, ax = plt.subplots(1)
                         mngr = plt.get_current_fig_manager()
+                        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                         ax.imshow(img)
                         
-                        toggle_selector.RS = RectangleSelector(
-                            ax, line_select_callback,
-                            #drawtype='box', 
-                            useblit=True,
-                            button=[1], minspanx=5, minspany=5,
-                            spancoords='pixels', interactive=True
-                            )
-                        bbox = plt.connect('key_press_event', toggle_selector)
-                        key = plt.connect('key_press_event', onkeypress)
-                        
                         plt.show()
-                       
-                cv2.destroyAllWindows()
+                        
+                        facePresent = input('Is there a face? [y/n]: ')
+                        
+                        if facePresent == 'y':
+                            # Create bounding box
+                            fig, ax = plt.subplots(1)
+                            mngr = plt.get_current_fig_manager()
+                            ax.imshow(img)
+                            
+                            toggle_selector.RS = RectangleSelector(
+                                ax, line_select_callback, 
+                                useblit=True,
+                                button=[1], minspanx=5, minspany=5,
+                                spancoords='pixels', interactive=True
+                                )
+                            bbox = plt.connect('key_press_event', toggle_selector)
+                            key = plt.connect('key_press_event', onkeypress)
+                            
+                            plt.show()
+                   
+            cv2.destroyAllWindows()
