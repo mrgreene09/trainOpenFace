@@ -63,7 +63,7 @@ cropFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropF
 
 dirList = sorted(glob.glob(rawFrames+ '*'))
 
-cropTask = input('Choose [automate/manual]: ')
+cropTask = input('Choose [automate/manual/postclean]: ')
 
 # Automatic cropping of MTCNN detected faces
 if cropTask == 'automate':    
