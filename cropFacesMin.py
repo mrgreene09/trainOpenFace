@@ -95,9 +95,56 @@ if cropTask == 'automate':
                     vidName = j.split('/')[-1]
                     vidDir = os.path.join(cropVidList, vidName)
                     
-                    # Compare images from both directories
-                    if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                        continue # Skip video folder
+                    if os.path.exists(vidDir):
+                        # Compare images from both directories
+                        if len(os.listdir(j)) == len(os.listdir(vidDir)):
+                            continue # Skip video folder
+                        else:
+                            # Loop through each image
+                            for k in imgList:
+                                frameCount += 1
+                                
+                                # extract face frame name
+                                prelimName = k.split('/')[-1]
+                                
+                                # create image directory
+                                path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
+                                os.makedirs(path, exist_ok=True)
+                                
+                                # Set file name and save path
+                                saveName = 'face'+str(frameCount)
+                                newCrop = os.path.join(path, saveName + '.jpg')
+                                
+                                # Skip existing files
+                                if os.path.isfile(newCrop) == True:
+                                    continue
+                                
+                                else:
+                                    # Open the image
+                                    print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
+                                    img = cv2.imread(k)
+                                    
+                                    # Detect the face
+                                    faces = face_detect(img) 
+                                    
+                                    # MTCNN detects a face
+                                    if len(faces) > 0:
+                                        x, y, width, height = (faces[0]['box'])
+                                        
+                                        # Crop the face
+                                        crop = img[y:y+height, x:x+width]
+                                        
+                                        # Show cropped image
+                                        cv2.imshow('cropped', crop)
+                                        cv2.waitKey(250)
+                                        cv2.destroyAllWindows()
+                                        
+                                        # Save image
+                                        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                                        
+                                    else:
+                                        continue
+                                    
                     else:
                         # Loop through each image
                         for k in imgList:
@@ -178,10 +225,70 @@ if cropTask == 'manual':
                         vidName = j.split('/')[-1]
                         vidDir = os.path.join(cropVidList, vidName)
                         
-                        # Compare images from both directories
-                        if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                            continue # Skip video folder
-                        else: 
+                        if os.path.exists(vidDir):
+                            # Compare images from both directories
+                            if len(os.listdir(j)) == len(os.listdir(vidDir)):
+                                continue # Skip video folder
+                            else: 
+                                # Loop through each image
+                                for k in imgList:
+                                    frameCount += 1
+                                    
+                                    # extract face frame name
+                                    prelimName = k.split('/')[-1]
+                                    
+                                    # create image directory
+                                    path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
+                                    os.makedirs(path, exist_ok=True)
+                                    
+                                    # Set file name and save path
+                                    saveName = 'face'+str(frameCount)
+                                    newCrop = os.path.join(path, saveName + '.jpg')
+                                    
+                                    # Skip existing files
+                                    if os.path.isfile(newCrop) == True:
+                                        continue
+                                    
+                                    else:
+                                        # Open the image
+                                        print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
+                                        img = cv2.imread(k)
+                                        
+                                        # Detect the face
+                                        faces = face_detect(img) 
+                                        
+                                        # MTCNN detects a face
+                                        if len(faces) > 0:
+                                            continue
+                                        
+                                        # MTCNN doesn't detect a face    
+                                        else:
+                                            # Skip existing files
+                                            if os.path.isfile(newCrop) == True:
+                                                continue
+                                            
+                                            else:
+                                                # Open image for assessment
+                                                fig, ax = plt.subplots(1)
+                                                mngr = plt.get_current_fig_manager()
+                                                ax.imshow(img)
+                                                
+                                                # Create bounding box
+                                                toggle_selector.RS = RectangleSelector(
+                                                    ax, line_select_callback, 
+                                                    useblit=True,
+                                                    button=[1], minspanx=5, minspany=5,
+                                                    spancoords='pixels', interactive=True
+                                                    )
+                                                bbox = plt.connect('key_press_event', toggle_selector)
+                                                key = plt.connect('key_press_event', onkeypress)
+                                                
+                                                plt.show()
+                                    
+                                    print('Saved as {}'.format(saveName))
+                                            
+                                    cv2.destroyAllWindows()
+                        else:
                             # Loop through each image
                             for k in imgList:
                                 frameCount += 1
@@ -211,35 +318,22 @@ if cropTask == 'manual':
                                     
                                     # MTCNN detects a face
                                     if len(faces) > 0:
-                                        continue
-                                    
-                                    # MTCNN doesn't detect a face    
+                                        x, y, width, height = (faces[0]['box'])
+                                        
+                                        # Crop the face
+                                        crop = img[y:y+height, x:x+width]
+                                        
+                                        # Show cropped image
+                                        cv2.imshow('cropped', crop)
+                                        cv2.waitKey(250)
+                                        cv2.destroyAllWindows()
+                                        
+                                        # Save image
+                                        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                                        
                                     else:
-                                        # Skip existing files
-                                        if os.path.isfile(newCrop) == True:
-                                            continue
-                                        
-                                        else:
-                                            # Open image for assessment
-                                            fig, ax = plt.subplots(1)
-                                            mngr = plt.get_current_fig_manager()
-                                            ax.imshow(img)
-                                            
-                                            # Create bounding box
-                                            toggle_selector.RS = RectangleSelector(
-                                                ax, line_select_callback, 
-                                                useblit=True,
-                                                button=[1], minspanx=5, minspany=5,
-                                                spancoords='pixels', interactive=True
-                                                )
-                                            bbox = plt.connect('key_press_event', toggle_selector)
-                                            key = plt.connect('key_press_event', onkeypress)
-                                            
-                                            plt.show()
-                                
-                                print('Saved as {}'.format(saveName))
-                                        
-                                cv2.destroyAllWindows()
+                                        continue
+                        
                     
 # Manual cropping of incorrect MTCNN detected faces (final step)
 if cropTask == 'postclean':
@@ -275,9 +369,64 @@ if cropTask == 'postclean':
                         vidName = j.split('/')[-1]
                         vidDir = os.path.join(cropVidList, vidName)
                         
-                        # Compare images from both directories
-                        if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                            continue # Skip video folder
+                        if os.path.exists(vidDir):
+                            # Compare images from both directories
+                            if len(os.listdir(j)) == len(os.listdir(vidDir)):
+                                continue # Skip video folder
+                            else:
+                                # Loop through each image
+                                for k in imgList:
+                                    frameCount += 1
+                                    
+                                    # extract face frame name
+                                    prelimName = k.split('/')[-1]
+                                    
+                                    # create image directory
+                                    path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
+                                    os.makedirs(path, exist_ok=True)
+                                    
+                                    # Set file name and save path
+                                    saveName = 'face'+str(frameCount)
+                                    newCrop = os.path.join(path, saveName + '.jpg')
+                                    
+                                    # Skip existing files
+                                    if os.path.isfile(newCrop) == True:
+                                        continue
+                                    
+                                    else:
+                                        # Open the image
+                                        print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
+                                        img = cv2.imread(k)
+                                        
+                                        # Detect the face
+                                        faces = face_detect(img) 
+                                        
+                                        # Skip existing files
+                                        if os.path.isfile(newCrop) == True:
+                                            continue
+                                        
+                                        else:
+                                            # Open image for assessment  
+                                            fig, ax = plt.subplots(1)
+                                            mngr = plt.get_current_fig_manager()
+                                            ax.imshow(img)
+                                            
+                                            # Create bounding box
+                                            toggle_selector.RS = RectangleSelector(
+                                                ax, line_select_callback, 
+                                                useblit=True,
+                                                button=[1], minspanx=5, minspany=5,
+                                                spancoords='pixels', interactive=True
+                                                )
+                                            bbox = plt.connect('key_press_event', toggle_selector)
+                                            key = plt.connect('key_press_event', onkeypress)
+                                            
+                                            plt.show()
+                                
+                                print('Saved as {}'.format(saveName))
+                                        
+                                cv2.destroyAllWindows()
+                                
                         else:
                             # Loop through each image
                             for k in imgList:
@@ -306,31 +455,23 @@ if cropTask == 'postclean':
                                     # Detect the face
                                     faces = face_detect(img) 
                                     
-                                    # Skip existing files
-                                    if os.path.isfile(newCrop) == True:
-                                        continue
-                                    
+                                    # MTCNN detects a face
+                                    if len(faces) > 0:
+                                        x, y, width, height = (faces[0]['box'])
+                                        
+                                        # Crop the face
+                                        crop = img[y:y+height, x:x+width]
+                                        
+                                        # Show cropped image
+                                        cv2.imshow('cropped', crop)
+                                        cv2.waitKey(250)
+                                        cv2.destroyAllWindows()
+                                        
+                                        # Save image
+                                        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                                        
                                     else:
-                                        # Open image for assessment  
-                                        fig, ax = plt.subplots(1)
-                                        mngr = plt.get_current_fig_manager()
-                                        ax.imshow(img)
-                                        
-                                        # Create bounding box
-                                        toggle_selector.RS = RectangleSelector(
-                                            ax, line_select_callback, 
-                                            useblit=True,
-                                            button=[1], minspanx=5, minspany=5,
-                                            spancoords='pixels', interactive=True
-                                            )
-                                        bbox = plt.connect('key_press_event', toggle_selector)
-                                        key = plt.connect('key_press_event', onkeypress)
-                                        
-                                        plt.show()
-                            
-                            print('Saved as {}'.format(saveName))
-                                    
-                            cv2.destroyAllWindows()
+                                        continue
                    
 else:
     print('Invalid response. Exit program and start again.')
