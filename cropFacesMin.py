@@ -82,7 +82,7 @@ if cropTask == 'automate':
             
             if os.path.exists(cropVidList):
                 # Compare video folders from both directories
-                if len(os.listdir(i)) == len(os.listdir(cropVidList)):
+                if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
                     continue # Skip ethnic group
                 else:
                     # Loop through each person folder
@@ -211,7 +211,7 @@ if cropTask == 'manual':
                 cropVidList = os.path.join(cropFrames, ethnicGroup)
                 
                 if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
+                    if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
                         print('{} finished, restart and input another folder.'.format(ethWhich))
                         break
                     
@@ -357,7 +357,7 @@ if cropTask == 'postclean':
                 cropVidList = os.path.join(cropFrames, ethnicGroup)
                 
                 if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
+                    if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
                         print('{} finished, restart and input another folder.'.format(ethWhich))
                         break
                     
