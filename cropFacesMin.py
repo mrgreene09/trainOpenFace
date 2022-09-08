@@ -61,8 +61,6 @@ rawFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/rawFra
 ## define where crops are
 cropFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropFrames/'
 
-dirList = sorted(glob.glob(rawFrames+ '*'))
-
 cropTask = input('Choose [automate/manual/postclean]: ')
 
 # Automatic cropping of MTCNN detected faces
@@ -72,18 +70,31 @@ if cropTask == 'automate':
         print('Automate task finished.')
         
     else:
-        # Loop through each ethnic group folder
-        for i in dirList:
-            vidList = sorted(glob.glob(i + '/' + '*'))
+        # Figure out what the latest file created is
+        currentFiles = glob.glob('/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropFrames/*/*/*.jpg')
+        latestPath = max(currentFiles, key=os.path.getctime)
+        latestFile = latestPath.split('/')[-1]
+        latestEth = latestFile.split('_')[1]
+
+        # Start work on what comes after latestFile
+        dirList = sorted(glob.glob(rawFrames+ '*/*')) # Sorts all video folders
+        # Create start folder
+        startFolder = os.path.join(rawFrames, latestEth, latestFile)
+        # Determine index of startFolder
+        idx = dirList.index(startFolder)
+
+        # for loop starting with startFolder
+        for i in range(idx, len(dirList)):
+            vidList = sorted(glob.glob(i + '/*'))
             # extract ethnic group name
-            ethnicGroup = i.split('/')[-1] 
+            ethnicGroup = i.split('/')[-2] 
             # Create path of each ethnic group folder in cropFrames
-            cropVidList = os.path.join(cropFrames, ethnicGroup)
+            cropVidList = os.path.join(cropFrames, ethnicGroup, startFolder)
             
             if os.path.exists(cropVidList):
                 # Compare video folders from both directories
-                if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
-                    continue # Skip ethnic group
+                if len(os.listdir(i)) == len(os.listdir(cropVidList)):
+                    continue # Skip ethnic group ## THIS DOESN'T SEEM TO WORK           
                 else:
                     # Loop through each person folder
                     for j in vidList:
@@ -211,7 +222,7 @@ if cropTask == 'manual':
                 cropVidList = os.path.join(cropFrames, ethnicGroup)
                 
                 if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
+                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
                         print('{} finished, restart and input another folder.'.format(ethWhich))
                         break
                     
@@ -357,7 +368,7 @@ if cropTask == 'postclean':
                 cropVidList = os.path.join(cropFrames, ethnicGroup)
                 
                 if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)) + 1:
+                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
                         print('{} finished, restart and input another folder.'.format(ethWhich))
                         break
                     
