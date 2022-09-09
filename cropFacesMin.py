@@ -92,7 +92,7 @@ if cropTask == 'automate':
             cropVidList = os.path.join(cropFrames, ethnicGroup, latestFile)
             
             if os.path.exists(cropVidList):
-                # Compare video folders from both directories
+                # Compare images in a video folder in both cropFrames and rawFrames
                 if len(os.listdir(dirList[i])) == len(os.listdir(cropVidList)):
                     continue # Skip ethnic group    
                 else:
@@ -104,52 +104,48 @@ if cropTask == 'automate':
                         vidName = j.split('/')[-2]
                         vidDir = os.path.join(cropVidList, vidName)
                         
-                        # Compare images from both directories
-                        if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                            continue # Skip video folder
+                        frameCount += 1
+                        
+                        # extract face frame name
+                        prelimName = j.split('/')[-1]
+                        
+                        # create image directory
+                        path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-2])
+                        os.makedirs(path, exist_ok=True)
+                        
+                        # Set file name and save path
+                        saveName = 'face'+str(frameCount)
+                        newCrop = os.path.join(path, saveName + '.jpg')
+                        
+                        # Skip existing files
+                        if os.path.isfile(newCrop) == True:
+                            continue
+                        
                         else:
-                            frameCount += 1
+                            # Open the image
+                            print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-2]))
+                            img = cv2.imread(j)
                             
-                            # extract face frame name
-                            prelimName = j.split('/')[-1]
+                            # Detect the face
+                            faces = face_detect(img) 
                             
-                            # create image directory
-                            path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-2])
-                            os.makedirs(path, exist_ok=True)
-                            
-                            # Set file name and save path
-                            saveName = 'face'+str(frameCount)
-                            newCrop = os.path.join(path, saveName + '.jpg')
-                            
-                            # Skip existing files
-                            if os.path.isfile(newCrop) == True:
-                                continue
-                            
+                            # MTCNN detects a face
+                            if len(faces) > 0:
+                                x, y, width, height = (faces[0]['box'])
+                                
+                                # Crop the face
+                                crop = img[y:y+height, x:x+width]
+                                
+                                # Show cropped image
+                                cv2.imshow('cropped', crop)
+                                cv2.waitKey(250)
+                                cv2.destroyAllWindows()
+                                
+                                # Save image
+                                cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+                                
                             else:
-                                # Open the image
-                                print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-2]))
-                                img = cv2.imread(j)
-                                
-                                # Detect the face
-                                faces = face_detect(img) 
-                                
-                                # MTCNN detects a face
-                                if len(faces) > 0:
-                                    x, y, width, height = (faces[0]['box'])
-                                    
-                                    # Crop the face
-                                    crop = img[y:y+height, x:x+width]
-                                    
-                                    # Show cropped image
-                                    cv2.imshow('cropped', crop)
-                                    cv2.waitKey(250)
-                                    cv2.destroyAllWindows()
-                                    
-                                    # Save image
-                                    cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
-                                    
-                                else:
-                                    continue                       
+                                continue                       
 
 # Manual cropping of faces not detected by MTCNN
 if cropTask == 'manual':
