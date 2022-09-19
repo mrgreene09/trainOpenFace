@@ -48,8 +48,7 @@ def onkeypress(event):
         crop = img[y:y2, x:x2]
         crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
         # Save cropped image
-        saveName = 'face'+str(frameCount)
-        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
+        cv2.imwrite(newCrop, crop)
         plt.close()
         # Reset values for the next image
         tl_list = []
@@ -146,289 +145,71 @@ if cropTask == 'automate':
                     else:
                         continue                 
 
-# Manual cropping of faces not detected by MTCNN
+# Manual cropping of faces not detected by MTCNN, including for postclean (run it again after)
 if cropTask == 'manual':
-    # Compare ethnic group folders in rawFrames and cropFrames directories
-    if len(os.listdir(rawFrames)) == len(os.listdir(cropFrames)):
-        print('Manual task finished.')
-    else:
-        for i in dirList:
-            # extract ethnic group name
-            ethnicGroup = i.split('/')[-1]
-            
-            ethWhich = input('Which folder would you like to work on? [EX] ')
-            
-            if ethWhich == ethnicGroup:
-                vidList = sorted(glob.glob(i + '/' + '*'))
-                
-                # Create path of each ethnic group folder in cropFrames
-                cropVidList = os.path.join(cropFrames, ethnicGroup)
-                
-                if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
-                        print('{} finished, restart and input another folder.'.format(ethWhich))
-                        break
-                    
-                    else:
-                        # Loop through each video folder
-                        for j in vidList:
-                            imgList = sorted(glob.glob(j + '/' + '*.jpg'))
-                            
-                            # Set frame count
-                            frameCount = 0
-                            
-                            # Create path of each video folder in cropFrames
-                            vidName = j.split('/')[-1]
-                            vidDir = os.path.join(cropVidList, vidName)
-                            
-                            if os.path.exists(vidDir):
-                                # Compare images from both directories
-                                if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                                    continue # Skip video folder
-                                else: 
-                                    # Loop through each image
-                                    for k in imgList:
-                                        frameCount += 1
-                                        
-                                        # extract face frame name
-                                        prelimName = k.split('/')[-1]
-                                        
-                                        # create image directory
-                                        path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
-                                        os.makedirs(path, exist_ok=True)
-                                        
-                                        # Set file name and save path
-                                        saveName = 'face'+str(frameCount)
-                                        newCrop = os.path.join(path, saveName + '.jpg')
-                                        
-                                        # Skip existing files
-                                        if os.path.isfile(newCrop) == True:
-                                            continue
-                                        
-                                        else:
-                                            # Open the image
-                                            print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
-                                            img = cv2.imread(k)
-                                            
-                                            # Detect the face
-                                            faces = face_detect(img) 
-                                            
-                                            # MTCNN detects a face
-                                            if len(faces) > 0:
-                                                continue
-                                            
-                                            # MTCNN doesn't detect a face    
-                                            else:
-                                                # Skip existing files
-                                                if os.path.isfile(newCrop) == True:
-                                                    continue
-                                                
-                                                else:
-                                                    # Open image for assessment
-                                                    fig, ax = plt.subplots(1)
-                                                    mngr = plt.get_current_fig_manager()
-                                                    ax.imshow(img)
-                                                    
-                                                    # Create bounding box
-                                                    toggle_selector.RS = RectangleSelector(
-                                                        ax, line_select_callback, 
-                                                        useblit=True,
-                                                        button=[1], minspanx=5, minspany=5,
-                                                        spancoords='pixels', interactive=True
-                                                        )
-                                                    bbox = plt.connect('key_press_event', toggle_selector)
-                                                    key = plt.connect('key_press_event', onkeypress)
-                                                    
-                                                    plt.show()
-                                        
-                                        print('Saved as {}'.format(saveName))
-                                                
-                                        cv2.destroyAllWindows()
-                            else:
-                                # Loop through each image
-                                for k in imgList:
-                                    frameCount += 1
-                                    
-                                    # extract face frame name
-                                    prelimName = k.split('/')[-1]
-                                    
-                                    # create image directory
-                                    path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
-                                    os.makedirs(path, exist_ok=True)
-                                    
-                                    # Set file name and save path
-                                    saveName = 'face'+str(frameCount)
-                                    newCrop = os.path.join(path, saveName + '.jpg')
-                                    
-                                    # Skip existing files
-                                    if os.path.isfile(newCrop) == True:
-                                        continue
-                                    
-                                    else:
-                                        # Open the image
-                                        print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
-                                        img = cv2.imread(k)
-                                        
-                                        # Detect the face
-                                        faces = face_detect(img) 
-                                        
-                                        # MTCNN detects a face
-                                        if len(faces) > 0:
-                                            x, y, width, height = (faces[0]['box'])
-                                            
-                                            # Crop the face
-                                            crop = img[y:y+height, x:x+width]
-                                            
-                                            # Show cropped image
-                                            cv2.imshow('cropped', crop)
-                                            cv2.waitKey(250)
-                                            cv2.destroyAllWindows()
-                                            
-                                            # Save image
-                                            cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
-                                            
-                                        else:
-                                            continue
-                        
-                    
-# Manual cropping of incorrect MTCNN detected faces (final step)
-if cropTask == 'postclean':
-    # Compare ethnic group folders in rawFrames and cropFrames directories
-    if len(os.listdir(rawFrames)) == len(os.listdir(cropFrames)):
-        print('Postclean task finished.')
+    # Sort ethnic group folders
+    dirList = sorted(glob.glob(rawFrames+ '*/'))
+    
+    for i in dirList:
+        # extract ethnic group name
+        ethnicGroup = i.split('/')[-2]
         
-    else:
-        for i in dirList:
-            # extract ethnic group name
-            ethnicGroup = i.split('/')[-1] 
+        ethWhich = input('Which folder would you like to work on? [EX] ')
+        
+        if ethWhich == ethnicGroup:
+            # Sort video folders
+            vidList = sorted(glob.glob(os.path.join(rawFrames, ethWhich + '/*')))
             
-            ethWhich = input('Which folder would you like to work on? [EX] ')
+            # Create path of each ethnic group folder in cropFrames
+            cropVidList = os.path.join(cropFrames, ethnicGroup + '/')
             
-            if ethWhich == ethnicGroup:
-                vidList = sorted(glob.glob(i + '/' + '*'))
+            for j in vidList:
+                # Sort image folders
+                imgList = sorted(glob.glob(j + '/*'))
                 
-                # Create path of each ethnic group folder in cropFrames
-                cropVidList = os.path.join(cropFrames, ethnicGroup)
+                # Set frame count
+                frameCount = 0
                 
-                if os.path.exists(cropVidList):
-                    if len(os.listdir(i)) == len(os.listdir(cropVidList)):
-                        print('{} finished, restart and input another folder.'.format(ethWhich))
-                        break
+                # Create path of each video folder in cropFrames
+                vidName = j.split('/')[-1]
+                vidDir = os.path.join(cropVidList, vidName)
+                os.makedirs(vidDir, exist_ok=True)
+                
+                for k in imgList:
+                    frameCount += 1
                     
+                    # extract face frame name
+                    prelimName = k.split('/')[-1]
+                    
+                    # Set path and file name for each image file
+                    saveName = 'face'+str(frameCount)
+                    newCrop = os.path.join(vidDir, saveName + '.jpg')
+                    
+                    if os.path.isfile(newCrop) == True:
+                        continue # Skip existing files
                     else:
-                        for j in vidList:
-                            imgList = sorted(glob.glob(j + '/' + '*.jpg'))
-                            
-                            # Set frame count
-                            frameCount = 0
-                            
-                            # Create path of each video folder in cropFrames
-                            vidName = j.split('/')[-1]
-                            vidDir = os.path.join(cropVidList, vidName)
-                            
-                            if os.path.exists(vidDir):
-                                # Compare images from both directories
-                                if len(os.listdir(j)) == len(os.listdir(vidDir)):
-                                    continue # Skip video folder
-                                else:
-                                    # Loop through each image
-                                    for k in imgList:
-                                        frameCount += 1
-                                        
-                                        # extract face frame name
-                                        prelimName = k.split('/')[-1]
-                                        
-                                        # create image directory
-                                        path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
-                                        os.makedirs(path, exist_ok=True)
-                                        
-                                        # Set file name and save path
-                                        saveName = 'face'+str(frameCount)
-                                        newCrop = os.path.join(path, saveName + '.jpg')
-                                        
-                                        # Skip existing files
-                                        if os.path.isfile(newCrop) == True:
-                                            continue
-                                        
-                                        else:
-                                            # Open the image
-                                            print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
-                                            img = cv2.imread(k)
-                                            
-                                            # Detect the face
-                                            faces = face_detect(img) 
-                                            
-                                            # Skip existing files
-                                            if os.path.isfile(newCrop) == True:
-                                                continue
-                                            
-                                            else:
-                                                # Open image for assessment  
-                                                fig, ax = plt.subplots(1)
-                                                mngr = plt.get_current_fig_manager()
-                                                ax.imshow(img)
-                                                
-                                                # Create bounding box
-                                                toggle_selector.RS = RectangleSelector(
-                                                    ax, line_select_callback, 
-                                                    useblit=True,
-                                                    button=[1], minspanx=5, minspany=5,
-                                                    spancoords='pixels', interactive=True
-                                                    )
-                                                bbox = plt.connect('key_press_event', toggle_selector)
-                                                key = plt.connect('key_press_event', onkeypress)
-                                                
-                                                plt.show()
-                                    
-                                    print('Saved as {}'.format(saveName))
-                                            
-                                    cv2.destroyAllWindows()
-                                    
-                            else:
-                                # Loop through each image
-                                for k in imgList:
-                                    frameCount += 1
-                                    
-                                    # extract face frame name
-                                    prelimName = k.split('/')[-1]
-                                    
-                                    # create image directory
-                                    path = os.path.join(cropFrames, ethnicGroup, j.split('/')[-1])
-                                    os.makedirs(path, exist_ok=True)
-                                    
-                                    # Set file name and save path
-                                    saveName = 'face'+str(frameCount)
-                                    newCrop = os.path.join(path, saveName + '.jpg')
-                                    
-                                    # Skip existing files
-                                    if os.path.isfile(newCrop) == True:
-                                        continue
-                                    
-                                    else:
-                                        # Open the image
-                                        print('Starting {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
-                                        img = cv2.imread(k)
-                                        
-                                        # Detect the face
-                                        faces = face_detect(img) 
-                                        
-                                        # MTCNN detects a face
-                                        if len(faces) > 0:
-                                            x, y, width, height = (faces[0]['box'])
-                                            
-                                            # Crop the face
-                                            crop = img[y:y+height, x:x+width]
-                                            
-                                            # Show cropped image
-                                            cv2.imshow('cropped', crop)
-                                            cv2.waitKey(250)
-                                            cv2.destroyAllWindows()
-                                            
-                                            # Save image
-                                            cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
-                                            
-                                        else:
-                                            continue
+                        # Open the image
+                        print('Working on {}'.format(prelimName[:-4]) + ' in {}'.format(j.split('/')[-1]))
+                        img = cv2.imread(k)
+                        
+                        # Open image for assessment
+                        fig, ax = plt.subplots(1)
+                        mngr = plt.get_current_fig_manager()
+                        ax.imshow(img)
+                        
+                        # Create bounding box
+                        toggle_selector.RS = RectangleSelector(
+                            ax, line_select_callback, 
+                            useblit=True,
+                            button=[1], minspanx=5, minspany=5,
+                            spancoords='pixels', interactive=True
+                            )
+                        bbox = plt.connect('key_press_event', toggle_selector)
+                        key = plt.connect('key_press_event', onkeypress)
+                        
+                        plt.show()
+                        
+                        print('Saved as {}'.format(saveName))
                    
 else:
     print('Invalid response. Exit program and start again.')
