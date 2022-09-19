@@ -60,7 +60,7 @@ rawFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/rawFra
 ## define where crops are
 cropFrames = '/Volumes/etna/Scholarship/Michelle Greene/Shared/AminaThesis/cropFrames/'
 
-cropTask = input('Choose [automate/manual/postclean]: ')
+cropTask = input('Choose [automate/manual]: ')
 
 # Automatic cropping of MTCNN detected faces
 if cropTask == 'automate':    
