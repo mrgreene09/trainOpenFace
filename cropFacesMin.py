@@ -96,7 +96,7 @@ if cropTask == 'automate':
             cropVidList = os.path.join(cropFrames, ethnicGroup, latestFile)
             # Set frame count
             frameCount = 0
-            
+             
             # Loop through each image in video folder
             for j in imgList:
                 # Create path of each video folder in cropFrames
@@ -137,7 +137,7 @@ if cropTask == 'automate':
                         
                         # Show cropped image
                         cv2.imshow('cropped', crop)
-                        cv2.waitKey(250)
+                        cv2.waitKey(100)
                         cv2.destroyAllWindows()
                         
                         # Save image
