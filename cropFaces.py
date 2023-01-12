@@ -4,6 +4,7 @@
 Created on Tue Aug  9 10:28:49 2022
 
 @author: michellegreene
+@author: joaquintorres
 """
 
 # Import libraries
@@ -49,8 +50,8 @@ def onkeypress(event):
         crop = img[y:y2, x:x2]
         crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
         # Save cropped image
-        saveName = 'faceTest2'
-        cv2.imwrite('/Users/bcvl/Desktop/' + saveName + '.jpg', crop)
+        saveName = 'face'+str(frameCount)
+        cv2.imwrite(os.path.join(path, saveName)+'.jpg', crop)
         plt.close()
         # Reset values for the next image
         tl_list = []
@@ -154,5 +155,7 @@ for i in dirList:
                             key = plt.connect('key_press_event', onkeypress)
                             
                             plt.show()
-                   
+            
+            print('Saved as {}'.format(saveName))
+                    
             cv2.destroyAllWindows()
